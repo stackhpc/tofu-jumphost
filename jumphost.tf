@@ -57,7 +57,7 @@ resource "local_file" "jumphost_vars" {
 }
 
 resource "local_file" "cloud-init" {
-  for_each = toset(var.debug ? [1] : [])
+  for_each = toset(var.debug ? [""] : [])
 
   filename = "cloudinit.yaml"
   content = templatefile("${path.module}/cloud-config.tftpl",
