@@ -5,7 +5,10 @@ variable "image_url" {
 }
 
 variable "image_name" {
-  description = "Name to give image on the cloud. Default is the final portion of image_url"
+  description = <<-EOT
+    Name to give image on the cloud. Default is the final portion of image_url.
+    This must include a dotted image format suffix
+  EOT
   type        = string
   default     = null
 }

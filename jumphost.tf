@@ -1,9 +1,13 @@
+locals {
+  image_name = coalesce(var.image_name, basename(var.image_url))
+}
+
 resource "openstack_images_image_v2" "jumphost" {
-  name             = coalesce(var.image_name, basename(var.image_url))
+  name             = local.image_name
   image_source_url = var.image_url
   web_download     = true
   container_format = "bare"
-  disk_format      = element(split(".", var.image), -1)
+  disk_format      = element(split(".", local.image_name), -1)
 
   properties = {
     key = "value"
