@@ -19,7 +19,6 @@ variable "ssh_user" {
 variable "authorised_keys" {
   description = "List of SSH public keys allowed through jumphost as var.ssh_user"
   type        = list(string)
-  default     = []
 }
 
 variable "debug" {
