@@ -1,0 +1,107 @@
+#cloud-config
+
+# -- init stage --
+# Could add this in debug mode to get console login too:
+# user:
+#   plain_text_passwd:
+#   lock_passwd: false
+users:
+  %{if debug}
+  - default
+  %{endif}
+  - name: ${user}
+    ssh_authorized_keys:
+    %{ for key in authorised_keys ~}
+      - ${key}
+    %{ endfor ~}
+
+write_files:
+  - path: /etc/fail2ban/jail.local
+    content: |
+      [DEFAULT]
+      bantime = ${bantime}
+      action = %(action_)s
+      
+      [sshd]
+      enabled = true
+
+  - path: /etc/ssh/sshd_config.d/99-proxy-only.conf
+    content: |
+      Match User *,!rocky
+      PermitTTY no
+      X11Forwarding no
+      PermitTunnel no
+      GatewayPorts no
+      AllowAgentForwarding no
+      AllowTcpForwarding yes
+      ForceCommand /bin/false
+    permissions: '0644'
+
+  - path: /etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-9
+    content: |
+      -----BEGIN PGP PUBLIC KEY BLOCK-----
+
+      mQINBGE3mOsBEACsU+XwJWDJVkItBaugXhXIIkb9oe+7aadELuVo0kBmc3HXt/Yp
+      CJW9hHEiGZ6z2jwgPqyJjZhCvcAWvgzKcvqE+9i0NItV1rzfxrBe2BtUtZmVcuE6
+      2b+SPfxQ2Hr8llaawRjt8BCFX/ZzM4/1Qk+EzlfTcEcpkMf6wdO7kD6ulBk/tbsW
+      DHX2lNcxszTf+XP9HXHWJlA2xBfP+Dk4gl4DnO2Y1xR0OSywE/QtvEbN5cY94ieu
+      n7CBy29AleMhmbnx9pw3NyxcFIAsEZHJoU4ZW9ulAJ/ogttSyAWeacW7eJGW31/Z
+      39cS+I4KXJgeGRI20RmpqfH0tuT+X5Da59YpjYxkbhSK3HYBVnNPhoJFUc2j5iKy
+      XLgkapu1xRnEJhw05kr4LCbud0NTvfecqSqa+59kuVc+zWmfTnGTYc0PXZ6Oa3rK
+      44UOmE6eAT5zd/ToleDO0VesN+EO7CXfRsm7HWGpABF5wNK3vIEF2uRr2VJMvgqS
+      9eNwhJyOzoca4xFSwCkc6dACGGkV+CqhufdFBhmcAsUotSxe3zmrBjqA0B/nxIvH
+      DVgOAMnVCe+Lmv8T0mFgqZSJdIUdKjnOLu/GRFhjDKIak4jeMBMTYpVnU+HhMHLq
+      uDiZkNEvEEGhBQmZuI8J55F/a6UURnxUwT3piyi3Pmr2IFD7ahBxPzOBCQARAQAB
+      tCdGZWRvcmEgKGVwZWw5KSA8ZXBlbEBmZWRvcmFwcm9qZWN0Lm9yZz6JAk4EEwEI
+      ADgWIQT/itE0RZcQbs6BO5GKOHK/MihGfAUCYTeY6wIbDwULCQgHAgYVCgkICwIE
+      FgIDAQIeAQIXgAAKCRCKOHK/MihGfFX/EACBPWv20+ttYu1A5WvtHJPzwbj0U4yF
+      3zTQpBglQ2UfkRpYdipTlT3Ih6j5h2VmgRPtINCc/ZE28adrWpBoeFIS2YAKOCLC
+      nZYtHl2nCoLq1U7FSttUGsZ/t8uGCBgnugTfnIYcmlP1jKKA6RJAclK89evDQX5n
+      R9ZD+Cq3CBMlttvSTCht0qQVlwycedH8iWyYgP/mF0W35BIn7NuuZwWhgR00n/VG
+      4nbKPOzTWbsP45awcmivdrS74P6mL84WfkghipdmcoyVb1B8ZP4Y/Ke0RXOnLhNe
+      CfrXXvuW+Pvg2RTfwRDtehGQPAgXbmLmz2ZkV69RGIr54HJv84NDbqZovRTMr7gL
+      9k3ciCzXCiYQgM8yAyGHV0KEhFSQ1HV7gMnt9UmxbxBE2pGU7vu3CwjYga5DpwU7
+      w5wu1TmM5KgZtZvuWOTDnqDLf0cKoIbW8FeeCOn24elcj32bnQDuF9DPey1mqcvT
+      /yEo/Ushyz6CVYxN8DGgcy2M9JOsnmjDx02h6qgWGWDuKgb9jZrvRedpAQCeemEd
+      fhEs6ihqVxRFl16HxC4EVijybhAL76SsM2nbtIqW1apBQJQpXWtQwwdvgTVpdEtE
+      r4ArVJYX5LrswnWEQMOelugUG6S3ZjMfcyOa/O0364iY73vyVgaYK+2XtT2usMux
+      VL469Kj5m13T6w==
+      =Mjs/
+      -----END PGP PUBLIC KEY BLOCK-----
+    permissions: '0644'
+
+  - path: /etc/systemd/system/dnf-automatic-install.timer
+    content: |
+      [Timer]
+      OnCalendar=
+      OnCalendar=*-*-* 3:00
+    permissions: '0644'
+
+# -- config stage --
+yum_repos:
+  epel:
+    name: 'Extra Packages for Enterprise Linux $releasever - $basearch'
+    metalink: https://mirrors.fedoraproject.org/metalink?repo=epel-$releasever&arch=$basearch&infra=$infra&content=$contentdir
+    enabled: true
+    gpgcheck: true
+    gpgkey: 'file:///etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-$releasever'
+
+# -- final stage --
+package_reboot_if_required: true
+package_update: true
+package_upgrade: true        
+packages:
+  - firewalld
+  - fail2ban-server
+  - fail2ban-firewalld
+  - dnf-automatic
+
+runcmd:
+  - firewall-cmd --zone=public --add-service=ssh
+  - firewall-cmd --zone=public --remove-service=cockpit
+  - systemctl enable --now firewalld
+  - systemctl enable --now fail2ban
+  - sshd -t
+  - systemctl restart sshd
+  - sed -i 's/^reboot = never/reboot = when-needed/' /etc/dnf/automatic.conf
+  - systemctl enable --now dnf-automatic-install.timer
