@@ -23,13 +23,13 @@ variable "authorised_keys" {
 }
 
 variable "debug" {
-  description = "Set true to create the distro's default user, e.g. to allow debugging and locally template cloud-init userdata"
+  description = "Set true to create the distro's default (rocky) user, e.g. to allow debugging and locally template cloud-init userdata"
   type        = bool
   default     = false
 }
 
 variable "default_key_pair" {
-  description = "Name of keypair for default user, only used in debug mode"
+  description = "Name of keypair for default (rocky) user, only used in debug mode"
   type        = string
   default     = null
 }
