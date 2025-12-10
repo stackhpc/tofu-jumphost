@@ -8,3 +8,6 @@ Key features:
 - fail2ban running
 
 [*] Except in a debug mode
+
+
+See `variables.tf` for all options.

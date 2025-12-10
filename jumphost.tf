@@ -61,6 +61,7 @@ resource "local_file" "cloud-init" {
       debug           = var.debug
       authorised_keys = var.authorised_keys
       user            = var.ssh_user
+      bantime         = var.bantime
     }
   )
 }
