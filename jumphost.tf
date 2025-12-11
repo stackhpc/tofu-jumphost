@@ -63,14 +63,6 @@ resource "openstack_networking_floatingip_associate_v2" "jumphost" {
   port_id = data.openstack_networking_port_v2.jumphost.id
 }
 
-resource "local_file" "jumphost_vars" {
-  filename = "${dirname(path.root)}/../site/inventory/group_vars/all/jumphost.yml"
-  content  = <<-EOT
-    jumphost_ip: ${var.floating_ip}
-    jumphost_user: ${var.ssh_user}
-  EOT
-}
-
 resource "local_file" "cloud-init" {
   for_each = toset(var.debug ? [""] : [])
 
@@ -83,4 +75,11 @@ resource "local_file" "cloud-init" {
       bantime         = var.bantime
     }
   )
+}
+
+output "jumphost_vars" {
+  value = {
+    jumphost_ip = var.floating_ip
+    jumphost_user  = var.ssh_user
+  }
 }
