@@ -1,5 +1,5 @@
 data "external" "git_info" {
-  program = ["./git-info.sh"]
+  program = ["${path.module}/git-info.sh"]
 }
 
 locals {
