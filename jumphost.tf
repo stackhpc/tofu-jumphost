@@ -28,7 +28,7 @@ resource "openstack_compute_instance_v2" "jumphost" {
   image_id    = data.openstack_images_image_v2.jumphost.id
   flavor_name = var.flavor
   key_pair    = var.default_key_pair # NB: normally null
-
+  name = var.instance_name
 
   network {
     name = var.network
