@@ -23,6 +23,12 @@ variable "image_name" {
   default     = null
 }
 
+variable "instance_name" {
+  description = "Name of instance"
+  type = string
+  default = "jumphost"
+}
+
 variable "ssh_user" {
   description = "SSH user to create and jump through as"
   type        = string

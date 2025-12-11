@@ -1,5 +1,10 @@
+data "external" "git_info" {
+  program = ["./git-info.sh"]
+}
+
 locals {
   image_name = coalesce(var.image_name, basename(coalesce(var.image_url, ".")))
+  git_info = data.external.git_info.result
 }
 
 resource "openstack_images_image_v2" "jumphost" {
@@ -20,7 +25,6 @@ data "openstack_images_image_v2" "jumphost" {
 }
 
 resource "openstack_compute_instance_v2" "jumphost" {
-  name        = "jumphost"
   image_id    = data.openstack_images_image_v2.jumphost.id
   flavor_name = var.flavor
   key_pair    = var.default_key_pair # NB: normally null
@@ -40,6 +44,12 @@ resource "openstack_compute_instance_v2" "jumphost" {
       bantime         = var.bantime
     }
   )
+
+  metadata = {
+    git_remote = "${local.git_info.remote}"
+    git_branch = "${local.git_info.branch}"
+    git_commit = "${local.git_info.commit}"
+  }
 }
 
 data "openstack_networking_port_v2" "jumphost" {
