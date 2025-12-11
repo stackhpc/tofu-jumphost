@@ -1,22 +1,27 @@
 locals {
-  image_name = coalesce(var.image_name, basename(var.image_url))
+  image_name = coalesce(var.image_name, basename(coalesce(var.image_url, ".")))
 }
 
 resource "openstack_images_image_v2" "jumphost" {
+  for_each = toset(var.image_url != null ? [""] : [])
   name             = local.image_name
   image_source_url = var.image_url
   web_download     = true
   container_format = "bare"
-  disk_format      = element(split(".", local.image_name), -1)
+  disk_format      = coalesce(var.image_format, element(split(".", var.image_url), -1))
+}
 
-  properties = {
-    key = "value"
-  }
+data "openstack_images_image_v2" "jumphost" {
+  
+  name = local.image_name
+  depends_on = [
+    openstack_images_image_v2.jumphost
+  ]
 }
 
 resource "openstack_compute_instance_v2" "jumphost" {
   name        = "jumphost"
-  image_id    = openstack_images_image_v2.jumphost.id
+  image_id    = data.openstack_images_image_v2.jumphost.id
   flavor_name = var.flavor
   key_pair    = var.default_key_pair # NB: normally null
 

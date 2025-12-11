@@ -1,13 +1,23 @@
 variable "image_url" {
-  description = "Address of RockyLinux (or compatible) image to use"
+  description = <<-EOT
+    Address of RockyLinux (or compatible) image to use. If null then an image
+    must already exist on the cloud.
+  EOT
   type        = string
   default     = "https://download.rockylinux.org/pub/rocky/9/images/x86_64/Rocky-9-GenericCloud-Base-9.6-20250531.0.x86_64.qcow2"
 }
 
+variable "image_format" {
+  description = <<-EOT
+    Format for downloaded image. Default is to use use extension from image_url.
+  EOT
+  type = string
+  default = null
+}
+
 variable "image_name" {
   description = <<-EOT
-    Name to give image on the cloud. Default is the final portion of image_url.
-    This must include a dotted image format suffix
+    Name of image in the cloud. Default takes it from image URL.
   EOT
   type        = string
   default     = null
