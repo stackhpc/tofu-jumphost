@@ -99,7 +99,7 @@ packages:
 runcmd:
   - firewall-cmd --zone=public --add-service=ssh
   - firewall-cmd --zone=public --remove-service=cockpit
-  - systemctl enable --now firewalld
+  - systemctl ${fail2ban_enable ? "enable" : "disable"} --now firewalld
   - systemctl enable --now fail2ban
   - sshd -t
   - systemctl restart sshd

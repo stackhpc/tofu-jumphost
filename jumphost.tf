@@ -41,6 +41,7 @@ resource "openstack_compute_instance_v2" "jumphost" {
       debug           = var.debug
       authorised_keys = var.authorised_keys
       user            = var.ssh_user
+      fail2ban_enable = var.fail2ban_enable
       bantime         = var.bantime
     }
   )
@@ -72,6 +73,7 @@ resource "local_file" "cloud-init" {
       debug           = var.debug
       authorised_keys = var.authorised_keys
       user            = var.ssh_user
+      fail2ban_enable = var.fail2ban_enable
       bantime         = var.bantime
     }
   )
