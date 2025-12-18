@@ -65,7 +65,6 @@ resource "openstack_networking_floatingip_associate_v2" "jumphost" {
 }
 
 resource "local_file" "cloud-init" {
-  for_each = toset(var.debug ? [""] : [])
 
   filename = "cloudinit.yaml"
   content = templatefile("${path.module}/cloud-config.tftpl",
