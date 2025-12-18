@@ -100,7 +100,7 @@ runcmd:
   - firewall-cmd --zone=public --add-service=ssh
   - firewall-cmd --zone=public --remove-service=cockpit
   - systemctl enable --now firewalld
-  - systemctl enable --now fail2ban
+  - systemctl ${fail2ban_enable ? "enable" : "disable"} --now fail2ban
   - sshd -t
   - systemctl restart sshd
   - sed -i 's/^reboot = never/reboot = when-needed/' /etc/dnf/automatic.conf

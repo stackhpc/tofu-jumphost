@@ -41,6 +41,7 @@ resource "openstack_compute_instance_v2" "jumphost" {
       debug           = var.debug
       authorised_keys = var.authorised_keys
       user            = var.ssh_user
+      fail2ban_enable = var.fail2ban_enable
       bantime         = var.bantime
     }
   )
@@ -64,7 +65,6 @@ resource "openstack_networking_floatingip_associate_v2" "jumphost" {
 }
 
 resource "local_file" "cloud-init" {
-  for_each = toset(var.debug ? [""] : [])
 
   filename = "cloudinit.yaml"
   content = templatefile("${path.module}/cloud-config.tftpl",
@@ -72,6 +72,7 @@ resource "local_file" "cloud-init" {
       debug           = var.debug
       authorised_keys = var.authorised_keys
       user            = var.ssh_user
+      fail2ban_enable = var.fail2ban_enable
       bantime         = var.bantime
     }
   )

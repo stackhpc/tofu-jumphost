@@ -73,7 +73,16 @@ variable "security_group_names" {
   default     = ["default", "SSH"]
 }
 
+variable "fail2ban_enable" {
+  description = "Whether to enable fail2ban or not"
+  type = bool
+  default = false
+}
+
 variable "bantime" {
-  description = "Time (s) to ban users repeatedly failing to authenticate"
+  description = <<-EOT
+    Time (s) to ban users repeatedly failing to authenticate. Only relevant
+    if fail2ban_enable
+  EOT
   default = 3600
 }

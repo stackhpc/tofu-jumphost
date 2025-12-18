@@ -5,7 +5,7 @@ Key features:
 - No default "rocky" user with passwordless sudo [*]
 - DNF updates on boot and at 3AM
 - firewalld running, only SSH permitted
-- fail2ban running
+- Optionally: fail2ban running
 
 [*] Except in a debug mode
 
