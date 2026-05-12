@@ -87,8 +87,8 @@ variable "bantime" {
   default = 3600
 }
 
-variable "blacklisted_modules" {
-  description = "Kernel modules to blacklist during cloud-init"
+variable "denylisted_modules" {
+  description = "Kernel modules to denylist during cloud-init"
   type = list(string)
   default = ["algif_aead", "esp4", "esp6", "rxrpc"]
 }
