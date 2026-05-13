@@ -86,3 +86,9 @@ variable "bantime" {
   EOT
   default = 3600
 }
+
+variable "denylisted_modules" {
+  description = "Kernel modules to denylist during cloud-init"
+  type = list(string)
+  default = ["algif_aead", "esp4", "esp6", "rxrpc"]
+}

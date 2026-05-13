@@ -87,7 +87,6 @@ yum_repos:
     gpgkey: 'file:///etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-$releasever'
 
 # -- final stage --
-package_reboot_if_required: true
 package_update: true
 package_upgrade: true        
 packages:
@@ -103,5 +102,10 @@ runcmd:
   - systemctl ${fail2ban_enable ? "enable" : "disable"} --now fail2ban
   - sshd -t
   - systemctl restart sshd
+%{ for m in denylisted_modules ~}
+  - echo "install ${m} /bin/false" >> /etc/modprobe.d/tofu-disabled-modules.conf
+  - rmmod ${m} || true
+%{ endfor ~}
   - sed -i 's/^reboot = never/reboot = when-needed/' /etc/dnf/automatic.conf
   - systemctl enable --now dnf-automatic-install.timer
+  - needs-restarting -r || shutdown -r +1 'Rebooting after applying package updates'
