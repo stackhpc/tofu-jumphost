@@ -111,14 +111,19 @@ runcmd:
   - sysctl ${s.name}=${s.value}
 %{ endfor ~}
 %{ if block_new_kernel_modules ~}
-  - ls /sys/module > /tmp/running-modules.txt
+  - |
+    echo "
+%{ for a in allowlisted_modules ~}
+    ${a}
+%{ endfor ~}
+    " > /tmp/allowed-modules.txt
   - find /lib/modules/$(uname -r) -type f -name "*.ko*" | awk -F'[/.]' '{print $(NF-2) }' > /tmp/all-modules.txt
   - awk -F'[/.]' '{print $(NF-1) }' /lib/modules/$(uname -r)/modules.builtin >> /tmp/all-modules.txt
-  - |
-    awk 'NR==FNR {exclude[$0]; next} !($0 in exclude)' /tmp/running-modules.txt /tmp/all-modules.txt \
-      | awk '{print "install", $1, "/bin/false"}' \
-      > /etc/modprobe.d/tofu-block-new-modules.conf
+  - awk 'NR==FNR {exclude[$0]; next} !($0 in exclude)' /tmp/allowed-modules.txt /tmp/all-modules.txt > /tmp/denied-modules.txt
+  - while read -r module; do rmmod "$module" || true; done < /tmp/denied-modules.txt
+  - awk '{print "install", $1, "/bin/false"}' /tmp/denied-modules.txt > /etc/modprobe.d/tofu-block-new-modules.conf
 %{ endif ~}
+  - dracut --regenerate-all --force
   - sed -i 's/^reboot = never/reboot = when-needed/' /etc/dnf/automatic.conf
   - systemctl enable --now dnf-automatic-install.timer
   - needs-restarting -r || shutdown -r +1 'Rebooting after applying package updates'

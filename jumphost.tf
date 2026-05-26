@@ -46,6 +46,7 @@ resource "openstack_compute_instance_v2" "jumphost" {
       denylisted_modules_list = local.denylisted_modules_list
       sysctl_options_list = local.sysctl_options_list
       block_new_kernel_modules = var.block_new_kernel_modules
+      allowlisted_modules = var.allowlisted_modules
     }
   )
 
@@ -80,6 +81,7 @@ resource "local_file" "cloud-init" {
       denylisted_modules_list = local.denylisted_modules_list
       sysctl_options_list = local.sysctl_options_list
       block_new_kernel_modules = var.block_new_kernel_modules
+      allowlisted_modules = var.allowlisted_modules
     }
   )
 }
