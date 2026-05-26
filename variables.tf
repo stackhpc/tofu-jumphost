@@ -87,8 +87,38 @@ variable "bantime" {
   default = 3600
 }
 
+locals {
+  # Blocked to mitigate copy-fail and dirty-frag CVEs
+  denylisted_modules_default = ["algif_aead", "esp4", "esp6", "rxrpc"]
+  denylisted_modules_list = concat(local.denylisted_modules_default, var.denylisted_modules)
+  sysctl_options_default = [
+  # Mitigation for ssh-keysign-pwn CVE
+  {
+    name = "kernel.yama.ptrace_scope"
+    value = "3"
+  }
+  ]
+  sysctl_options_list = concat(local.sysctl_options_default, var.sysctl_options)
+}
 variable "denylisted_modules" {
   description = "Kernel modules to denylist during cloud-init"
   type = list(string)
-  default = ["algif_aead", "esp4", "esp6", "rxrpc"]
+  default = []
+}
+
+variable "sysctl_options" {
+  description = <<-EOT
+    List of dicts representing sysctl options to create drop-in files for.
+    Each item is in the format:
+      name: Name of sysctl options
+      value: Value to set for it
+  EOT
+  type = list(map(string))
+  default = []
+}
+
+variable "block_new_kernel_modules" {
+  description = "If enabled, will block any kernel modules which werent't already running when the jumphost initially booted"
+  type = bool
+  default = true
 }

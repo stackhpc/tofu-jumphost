@@ -102,10 +102,23 @@ runcmd:
   - systemctl ${fail2ban_enable ? "enable" : "disable"} --now fail2ban
   - sshd -t
   - systemctl restart sshd
-%{ for m in denylisted_modules ~}
+%{ for m in denylisted_modules_list ~}
   - echo "install ${m} /bin/false" >> /etc/modprobe.d/tofu-disabled-modules.conf
   - rmmod ${m} || true
 %{ endfor ~}
+%{ for s in sysctl_options_list ~}
+  - echo "${s.name}=${s.value}" >> /etc/sysctl.d/99-tofu-sysctl-options.conf
+  - sysctl ${s.name}=${s.value}
+%{ endfor ~}
+%{ if block_new_kernel_modules ~}
+  - ls /sys/module > /tmp/running-modules.txt
+  - find /lib/modules/$(uname -r) -type f -name "*.ko*" | awk -F'[/.]' '{print $(NF-2) }' > /tmp/all-modules.txt
+  - awk -F'[/.]' '{print $(NF-1) }' /lib/modules/$(uname -r)/modules.builtin >> /tmp/all-modules.txt
+  - |
+    awk 'NR==FNR {exclude[$0]; next} !($0 in exclude)' /tmp/running-modules.txt /tmp/all-modules.txt \
+      | awk '{print "install", $1, "/bin/false"}' \
+      > /etc/modprobe.d/tofu-block-new-modules.conf
+%{ endif ~}
   - sed -i 's/^reboot = never/reboot = when-needed/' /etc/dnf/automatic.conf
   - systemctl enable --now dnf-automatic-install.timer
   - needs-restarting -r || shutdown -r +1 'Rebooting after applying package updates'
