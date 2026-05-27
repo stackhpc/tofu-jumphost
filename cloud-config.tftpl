@@ -77,6 +77,13 @@ write_files:
       OnCalendar=*-*-* 3:00
     permissions: '0644'
 
+  - path: /etc/sysctl.d/99-tofu-sysctl-options.conf
+    content: |
+%{ for s in sysctl_options ~}
+      ${s.name}=${s.value}
+%{ endfor ~}
+    permissions: '0644'
+
 # -- config stage --
 yum_repos:
   epel:
@@ -106,6 +113,7 @@ runcmd:
   - echo "install ${m} /bin/false" >> /etc/modprobe.d/tofu-disabled-modules.conf
   - rmmod ${m} || true
 %{ endfor ~}
+  - cat /etc/sysctl.d/99-tofu-sysctl-options.conf | xargs sysctl
   - sed -i 's/^reboot = never/reboot = when-needed/' /etc/dnf/automatic.conf
   - systemctl enable --now dnf-automatic-install.timer
   - needs-restarting -r || shutdown -r +1 'Rebooting after applying package updates'

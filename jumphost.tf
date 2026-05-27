@@ -44,6 +44,7 @@ resource "openstack_compute_instance_v2" "jumphost" {
       fail2ban_enable = var.fail2ban_enable
       bantime         = var.bantime
       denylisted_modules = var.denylisted_modules
+      sysctl_options = var.sysctl_options
     }
   )
 
@@ -76,6 +77,7 @@ resource "local_file" "cloud-init" {
       fail2ban_enable = var.fail2ban_enable
       bantime         = var.bantime
       denylisted_modules = var.denylisted_modules
+      sysctl_options = var.sysctl_options
     }
   )
 }

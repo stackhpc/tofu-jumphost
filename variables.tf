@@ -90,5 +90,22 @@ variable "bantime" {
 variable "denylisted_modules" {
   description = "Kernel modules to denylist during cloud-init"
   type = list(string)
-  default = ["algif_aead", "esp4", "esp6", "rxrpc"]
+  default = ["esp4", "esp6", "rxrpc"]
+}
+
+variable "sysctl_options" {
+  description = <<-EOT
+    List of dicts representing sysctl options to create drop-in files for.
+    Each item is in the format:
+      name: Name of sysctl option
+      value: Value to set for it
+  EOT
+  type = list(map(string))
+  default = [
+    # Mitigation for ssh-keysign-pwn CVE
+    {
+      name = "kernel.yama.ptrace_scope"
+      value = "3"
+    }
+  ]
 }
