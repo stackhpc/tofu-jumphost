@@ -70,7 +70,7 @@ write_files:
       -----END PGP PUBLIC KEY BLOCK-----
     permissions: '0644'
 
-  - path: /etc/systemd/system/dnf-automatic-install.timer
+  - path: /etc/systemd/system/dnf-automatic-install.timer.d/override.conf
     content: |
       [Timer]
       OnCalendar=
